@@ -1,0 +1,11 @@
+---
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "05:55"
+    open-pull-requests-limit: 5
+    reviewers:
+      - skarzi
