@@ -10,13 +10,24 @@ authors = ["Łukasz Skarżyński <me@skarzi.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/skarzi/drf-exception-dispatcher"
-# TODO(skarzi): add proper classifiers
+keywords = [
+    "django",
+    "django-exceptions",
+    "django-rest-framework",
+    "rest-framework-exceptions",
+    "exceptions",
+    "exception-handler",
+    "exception-dispatcher",
+    "exception-parser",
+    "singledispatch",
+]
 classifiers = [
   "Development Status :: 4 - Beta",
-  "Framework :: Django",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Internet :: WWW/HTTP",
+  "Framework :: Django",
 ]
 
 [tool.poetry.dependencies]
