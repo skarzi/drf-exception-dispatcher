@@ -1,0 +1,80 @@
+---
+name: test
+'on':
+  push:
+  pull_request:
+    branches:
+      # Branches from forks have the form 'user:branch-name'. Reference:
+      # https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/9
+      - '**:**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.continue-on-error }}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+        django-version:
+          - 'Django~=2.2.0'
+          - 'Django~=3.0.0'
+          - 'Django~=3.1.0'
+        django-rest-framework-version:
+          - 'djangorestframework~=3.11.0'
+          - 'djangorestframework~=3.12.0'
+        continue-on-error: [false]
+
+        include:
+          - python-version: 3.8
+            django-rest-framework-version: 'https://github.com/encode/django-rest-framework/archive/master.zip'
+            django-version: 'Django~=3.1.0'
+            continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: set up python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: install poetry
+        run: |
+          curl -sSL \
+            "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | python
+          # add `poetry` to `${PATH}`
+          echo "${HOME}/.poetry/bin" >> ${GITHUB_PATH}
+      - name: set up cache
+        uses: actions/cache@v1
+        with:
+          path: .venv
+          key: "venv-${{ matrix.python-version }}\
+            -${{ matrix.django-version }}\
+            -${{ matrix.django-rest-framework-version }}\
+            -${{ hashFiles('poetry.lock') }}"
+
+      - name: Install dependencies
+        run: |
+          source "$HOME/.poetry/env"
+          poetry config virtualenvs.in-project true
+          poetry install
+          poetry run pip install \
+            --upgrade \
+          "${{ matrix.django-version }}" \
+          "${{ matrix.django-rest-framework-version }}"
+      - name: >-
+          tests for python ${{ matrix.python-version }},
+          ${{ matrix.django-version }}
+          and ${{ matrix.django-rest-framework-version }}
+        run: |
+          source "$HOME/.poetry/env"
+          make test
+      - name: upload coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./.tests_reports/coverage.xml
+      - name: lint markdown files
+        uses: reviewdog/action-markdownlint@v0.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-check
+          fail_on_error: true
