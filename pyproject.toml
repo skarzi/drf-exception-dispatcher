@@ -26,7 +26,7 @@ python = "^3.6"
 # type hinting
 mypy = "^0.800"
 django-stubs = "^1.7.0"
-djangorestframework-stubs = "^1.3.0"
+djangorestframework-stubs = "^1.4.0"
 
 # linters
 flake8-pytest-style = "^1.3.0"
