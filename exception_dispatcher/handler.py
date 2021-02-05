@@ -33,4 +33,4 @@ def exception_handler(
     return exception_dispatcher(exception, context)
 
     # finalization actions can be added here, after replacing `return` with
-    # assigment, e.g. `response = exception_dipatcher(exception, context)`
+    # assignment, e.g. `response = exception_dipatcher(exception, context)`
