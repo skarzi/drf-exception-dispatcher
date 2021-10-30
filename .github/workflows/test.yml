@@ -69,13 +69,10 @@ jobs:
             --upgrade \
           "${{ matrix.django-version }}" \
           "${{ matrix.django-rest-framework-version }}"
-      - name: >-
-          tests for python ${{ matrix.python-version }},
-          ${{ matrix.django-version }}
-          and ${{ matrix.django-rest-framework-version }}
+      - name: test
         run: make test
       - name: upload coverage to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2.1.0
         with:
           file: ./.tests_reports/coverage.xml
 
