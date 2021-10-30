@@ -55,7 +55,7 @@ safety = "^1.10.3"
 
 # tests
 pytest = "^6.2.2"
-pytest-cov = "^2.11.1"
+pytest-cov = "^3.0.0"
 pytest-deadfixtures = "^2.2.1"
 pytest-mock = "^3.5.1"
 pytest-randomly = "^3.5.0"
