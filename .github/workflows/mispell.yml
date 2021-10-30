@@ -1,7 +1,7 @@
 ---
 name: misspell
 'on':
-  workflow_dispatch: {}
+  workflow_dispatch:
   schedule:
     - cron: '0 7 * * *'
 jobs:
@@ -10,10 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: sobolevn/misspell-fixer-action@master
-      - uses: peter-evans/create-pull-request@v3.6.0
+      - uses: peter-evans/create-pull-request@v3.10.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'fixes by misspell-fixer'
-          title: 'typos fixes by misspell-fixer'
+          commit-message: 'fix: fix typos with misspell-fixer'
+          title: 'fix: fix typos with misspell-fixer'
+          branch: fix/misspell-fixer/typos
           delete-branch: true
           reviewers: skarzi
