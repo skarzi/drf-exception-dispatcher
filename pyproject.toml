@@ -5,6 +5,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "drf-exception-dispatcher"
 version = "0.1.0"
+packages = [
+    { include = "exception_dispatcher" },
+]
 description = "django-rest-framework exception handler build with functools.singledispatch"
 authors = ["Łukasz Skarżyński <me@skarzi.com>"]
 license = "MIT"
