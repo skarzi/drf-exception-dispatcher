@@ -5,6 +5,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "drf-exception-dispatcher"
 version = "0.1.0"
+packages = [
+    { include = "exception_dispatcher" },
+]
 description = "django-rest-framework exception handler build with functools.singledispatch"
 authors = ["Łukasz Skarżyński <me@skarzi.com>"]
 license = "MIT"
@@ -31,7 +34,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.6.1"
 
 [tool.poetry.dev-dependencies]
 # type hinting
@@ -40,10 +43,15 @@ django-stubs = "^1.7.0"
 djangorestframework-stubs = "^1.4.0"
 
 # linters
-flake8-pytest-style = "^1.3.0"
+# python
+flake8-pytest-style = "^1.5.0"
 flake8-todos = "^0.1.5"
+flake8-typing-imports = "^1.11.0"
+import-linter = "^1.2.6"
+wemake-python-styleguide = "^0.15.3"
+yesqa = "^1.3.0"
+# other
 safety = "^1.10.3"
-wemake-python-styleguide = "^0.14.1"
 
 # tests
 pytest = "^6.2.2"
