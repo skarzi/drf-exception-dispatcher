@@ -42,6 +42,8 @@ def exception_dispatcher(
 
 
         exception_dispatcher.register(handle_key_error)
+        # or when using Python 3.6.x:
+        exception_dispatcher.register(KeyError, handle_key_error)
 
     """
     # log exception, so it can be processed by logging and monitoring services
