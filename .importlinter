@@ -1,0 +1,15 @@
+[importlinter]
+root_package = exception_dispatcher
+include_external_packages = True
+
+
+[importlinter:contract:layers]
+name = Layered architecture
+type = layers
+containers =
+  exception_dispatcher
+layers =
+  handlers
+  dispatchers
+  parsers
+  types
