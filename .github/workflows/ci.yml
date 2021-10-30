@@ -1,5 +1,5 @@
 ---
-name: test
+name: CI
 'on':
   push:
     branches:
@@ -91,5 +91,11 @@ jobs:
         run: |
           npm install --global markdownlint-cli
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: lint Markdown files
         run: markdownlint .
+      - name: lint commit messages
+        uses: wagoid/commitlint-github-action@v4.1.9
+        with:
+          failOnWarnings: true
