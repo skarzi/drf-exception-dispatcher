@@ -48,4 +48,4 @@ def exception_dispatcher(
     """
     # log exception, so it can be processed by logging and monitoring services
     logger.exception(exception)
-    return None  # noqa: WPS324
+    return None
