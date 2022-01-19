@@ -826,7 +826,7 @@ pytest = "*"
 
 [[package]]
 name = "pytest-timeout"
-version = "2.0.2"
+version = "2.1.0"
 description = "pytest plugin to abort hanging tests"
 category = "dev"
 optional = false
@@ -1085,7 +1085,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "bb7b8673912bbe5ae2af5690ba63a3cbd1b53f6d85aebd3236ca5d040b229f5e"
+content-hash = "b1e5ea546d7a24bf1fa991197299d384306a2a55f401ff89c6674ec76268d1be"
 
 [metadata.files]
 asgiref = [
@@ -1490,8 +1490,8 @@ pytest-randomly = [
     {file = "pytest_randomly-3.10.3-py3-none-any.whl", hash = "sha256:b05a7a45f54cae2b5095752c6a10cb559df84448421b0420ae492dd2fb1727ef"},
 ]
 pytest-timeout = [
-    {file = "pytest-timeout-2.0.2.tar.gz", hash = "sha256:e6f98b54dafde8d70e4088467ff621260b641eb64895c4195b6e5c8f45638112"},
-    {file = "pytest_timeout-2.0.2-py3-none-any.whl", hash = "sha256:fe9c3d5006c053bb9e062d60f641e6a76d6707aedb645350af9593e376fcc717"},
+    {file = "pytest-timeout-2.1.0.tar.gz", hash = "sha256:c07ca07404c612f8abbe22294b23c368e2e5104b521c1790195561f37e1ac3d9"},
+    {file = "pytest_timeout-2.1.0-py3-none-any.whl", hash = "sha256:f6f50101443ce70ad325ceb4473c4255e9d74e3c7cd0ef827309dfa4c0d975c6"},
 ]
 pytz = [
     {file = "pytz-2021.3-py2.py3-none-any.whl", hash = "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c"},
