@@ -35,6 +35,19 @@ jobs:
               https://github.com/encode/django-rest-framework/archive/master.zip
             django-version: 'https://github.com/django/django/archive/main.zip'
             continue-on-error: true
+        exclude:
+          - python-version: '3.7'
+            django-rest-framework-version: 'djangorestframework~=3.11.0'
+            django-version: 'Django~=4.0.0'
+            continue-on-error: false
+          - python-version: '3.7'
+            django-rest-framework-version: 'djangorestframework~=3.12.0'
+            django-version: 'Django~=4.0.0'
+            continue-on-error: false
+          - python-version: '3.7'
+            django-rest-framework-version: 'djangorestframework~=3.13.0'
+            django-version: 'Django~=4.0.0'
+            continue-on-error: false
 
     steps:
       - uses: actions/checkout@v2
