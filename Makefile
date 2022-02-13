@@ -34,7 +34,11 @@ unit: $(BASE_UNIT_STAGE)
 lint_package:
 	poetry check
 	poetry run pip check
-	poetry run safety check --full-report
+	# NOTE: following ignores flags, are used to ignore some issues related to
+	# legacy `django` or `djangorestframework` versions
+	poetry run safety check \
+		--full-report \
+		--ignore 38841
 
 
 .PHONY: test
