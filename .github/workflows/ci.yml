@@ -111,6 +111,6 @@ jobs:
       - name: lint Markdown files
         run: markdownlint .
       - name: lint commit messages
-        uses: wagoid/commitlint-github-action@v4.1.12
+        uses: wagoid/commitlint-github-action@v5.0.0
         with:
           failOnWarnings: true
