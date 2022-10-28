@@ -158,24 +158,27 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-stubs"
-version = "1.9.0"
+version = "1.12.0"
 description = "Mypy stubs for Django"
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 django = "*"
-django-stubs-ext = ">=0.3.0"
-mypy = ">=0.910"
-toml = "*"
+django-stubs-ext = ">=0.4.0"
+mypy = ">=0.930"
+tomli = "*"
 types-pytz = "*"
 types-PyYAML = "*"
 typing-extensions = "*"
 
+[package.extras]
+compatible-mypy = ["mypy (>=0.930,<0.970)"]
+
 [[package]]
 name = "django-stubs-ext"
-version = "0.3.1"
+version = "0.5.0"
 description = "Monkey-patching and extensions for django-stubs"
 category = "dev"
 optional = false
@@ -1122,7 +1125,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "c1a9356e2114fdf1f5a14d77a120247e2dd5776fce00876eaebea558c562bacc"
+content-hash = "e1025eb5cbbc97e620655769f252331fd71fd4c881d87b1315ab149cfee74e8a"
 
 [metadata.files]
 asgiref = [
@@ -1217,12 +1220,12 @@ django = [
     {file = "Django-3.2.12.tar.gz", hash = "sha256:9772e6935703e59e993960832d66a614cf0233a1c5123bc6224ecc6ad69e41e2"},
 ]
 django-stubs = [
-    {file = "django-stubs-1.9.0.tar.gz", hash = "sha256:664843091636a917faf5256d028476559dc360fdef9050b6df87ab61b21607bf"},
-    {file = "django_stubs-1.9.0-py3-none-any.whl", hash = "sha256:59c9f81af64d214b1954eaf90f037778c8d2b9c2de946a3cda177fefcf588fbd"},
+    {file = "django-stubs-1.12.0.tar.gz", hash = "sha256:ea8b35d0da49f7b2ee99a79125f1943e033431dd114726d6643cc35de619230e"},
+    {file = "django_stubs-1.12.0-py3-none-any.whl", hash = "sha256:0dff8ec0ba3abe046450b3d8a29ce9e72629893d2c1ef679189cc2bfdb6d2f64"},
 ]
 django-stubs-ext = [
-    {file = "django-stubs-ext-0.3.1.tar.gz", hash = "sha256:783c198d7e39a41be0b90fd843fa2770243a642922af679be4b19e03b82c8c28"},
-    {file = "django_stubs_ext-0.3.1-py3-none-any.whl", hash = "sha256:a51a3e9e844d4e1cacaaedbb33bf3def78a3956eed5d9575a640bd97ccd99cec"},
+    {file = "django-stubs-ext-0.5.0.tar.gz", hash = "sha256:9bd7418376ab00b7f88d6d56be9fece85bfa0c7c348ac621155fa4d7a91146f2"},
+    {file = "django_stubs_ext-0.5.0-py3-none-any.whl", hash = "sha256:c5d8db53d29c756e7e3d0820a5a079a43bc38d8fab0e1b8bd5df2f3366c54b5a"},
 ]
 djangorestframework = [
     {file = "djangorestframework-3.13.1-py3-none-any.whl", hash = "sha256:24c4bf58ed7e85d1fe4ba250ab2da926d263cd57d64b03e8dcef0ac683f8b1aa"},
