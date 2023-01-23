@@ -42,7 +42,7 @@ djangorestframework = "^3.11.0"
 [tool.poetry.dev-dependencies]
 # type hinting
 mypy = "^0.982"
-django-stubs = "^1.7.0"
+django-stubs = "^1.13.2"
 djangorestframework-stubs = "^1.4.0"
 
 # linters
