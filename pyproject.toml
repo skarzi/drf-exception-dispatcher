@@ -261,5 +261,6 @@ source-exclude = [
   ".tests_reports/**",
   ".venv/**",
   "node_modules/**",
+  "tests/test_tools/**",
   "tools/**",
 ]

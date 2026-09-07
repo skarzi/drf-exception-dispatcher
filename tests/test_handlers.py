@@ -26,6 +26,10 @@ class _ExceptionView(APIView):
         raise Http404
 
 
+class _FractionalWaitException(exceptions.APIException):
+    wait = 1.5
+
+
 @pytest.mark.parametrize(
     'exception',
     [
@@ -40,6 +44,7 @@ class _ExceptionView(APIView):
         exceptions.Throttled(),
         exceptions.UnsupportedMediaType('application/vnd.skarzi+json'),
         exceptions.ValidationError(),
+        _FractionalWaitException(),
         # special cases of `django` exceptions
         PermissionDenied(),
         PermissionDenied('Access denied', 'access_denied'),

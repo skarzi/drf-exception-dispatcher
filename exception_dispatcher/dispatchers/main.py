@@ -45,5 +45,5 @@ def exception_dispatcher(
         exception_dispatcher.register(KeyError, handle_key_error)
 
     """
-    logger.exception(exception)
+    logger.exception('%s', exception, exc_info=exception)
     return None

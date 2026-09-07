@@ -8,8 +8,6 @@ https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-han
 
 """
 
-import functools
-
 from collections.abc import Callable
 from typing import cast
 
@@ -28,7 +26,6 @@ APIExceptionParser = Callable[
 ]
 
 
-@functools.lru_cache(maxsize=1)
 def get_api_exception_parser() -> APIExceptionParser:
     """Get callable object used to parse ``APIException`` based on settings."""
     parser_path = getattr(
@@ -59,7 +56,7 @@ def handle_rest_framework_api_exception(
         headers['WWW-Authenticate'] = auth_header
     wait_value = getattr(exception, 'wait', None)
     if wait_value:
-        headers['Retry-After'] = str(wait_value)
+        headers['Retry-After'] = '%d' % wait_value  # noqa: UP031
     response_data = get_api_exception_parser()(exception, context)
     if getattr(settings, 'EXCEPTION_DISPATCHER_SET_ROLLBACK', True):
         set_rollback()

@@ -37,8 +37,18 @@ def test_returned_value() -> None:
 
 
 def test_logger(caplog: pytest.LogCaptureFixture) -> None:
-    """Ensure exception is logged."""
+    """Ensure supplied exception and traceback are logged."""
+    message = 'Delayed failure.'
+    exception = ValueError(message)
+    with pytest.raises(ValueError, match=r'Delayed failure\.'):
+        raise exception
+
     with caplog.at_level(logging.ERROR):
-        exception_dispatcher(ValueError(), {})
+        exception_dispatcher(exception, {})
 
     assert len(caplog.records) == 1
+    assert caplog.records[0].exc_info == (
+        ValueError,
+        exception,
+        exception.__traceback__,
+    )
