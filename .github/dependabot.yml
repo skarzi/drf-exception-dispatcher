@@ -1,24 +1,107 @@
 ---
 version: 2
 updates:
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/"
     schedule:
       interval: daily
       time: "05:55"
-    open-pull-requests-limit: 5
-    reviewers:
-      - skarzi
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 10
+    groups:
+      runtime:
+        patterns:
+          - django
+          - djangorestframework
+        update-types:
+          - minor
+          - patch
+      tests:
+        patterns:
+          - pytest
+          - pytest-cov
+          - pytest-deadfixtures
+          - pytest-mock
+          - pytest-randomly
+          - pytest-timeout
+        update-types:
+          - minor
+          - patch
+      typing:
+        patterns:
+          - django-stubs
+          - djangorestframework-stubs
+          - mypy
+        update-types:
+          - minor
+          - patch
+      developer-tools:
+        patterns:
+          - codespell
+          - flake8
+          - flake8-pyproject
+          - import-linter
+          - packaging
+          - pip-audit
+          - pre-commit
+          - ruff
+          - tombi
+          - twine
+          - uv-build
+          - wemake-python-styleguide
+          - yamllint
+        update-types:
+          - minor
+          - patch
     commit-message:
-      prefix: "build(deps): "
-      prefix-development: "chore(deps): "
+      prefix: "build(deps)"
+      prefix-development: "chore(deps)"
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "05:55"
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 5
+    groups:
+      node-development-tools:
+        patterns:
+          - "@commitlint/*"
+          - markdownlint-cli2
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: "chore(deps)"
+  - package-ecosystem: pre-commit
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "05:55"
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 5
+    groups:
+      hooks:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: "chore(deps)"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: daily
       time: "05:55"
-    open-pull-requests-limit: 1
-    reviewers:
-      - skarzi
+      timezone: Europe/Warsaw
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
     commit-message:
-      prefix: "chore(deps): "
+      prefix: "chore(deps)"

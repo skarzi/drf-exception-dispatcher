@@ -1,12 +1,13 @@
-"""Django's exceptions dispatchers.
+"""Django exception dispatchers.
 
-This module implement part of `django-rest-framework` default exception
-handler, related to `django` `Http404` and `PermissionDenied` exceptions.
+This module implements the part of Django REST framework's default exception
+handler related to Django's ``Http404`` and ``PermissionDenied`` exceptions.
 Reference:
 
-https://github.com/encode/django-rest-framework/blob/19655edbf782aa1fbdd7f8cd56ff9e0b7786ad3c/rest_framework/views.py#L81
+https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-handling
 
 """
+
 from django.core import exceptions as django_exceptions
 from django.http import Http404
 from rest_framework import exceptions as drf_exceptions
@@ -25,7 +26,7 @@ def handle_django_http404(
 ) -> Response:
     """Translate django ``Http404`` exception to rest_framework ``NotFound``."""
     return handle_rest_framework_api_exception(
-        drf_exceptions.NotFound(),
+        drf_exceptions.NotFound(*exception.args),
         context,
     )
 
@@ -36,7 +37,7 @@ def handle_django_permission_denied(
 ) -> Response:
     """Translate django ``PermissionDenied`` exception to rest_framework one."""
     return handle_rest_framework_api_exception(
-        drf_exceptions.PermissionDenied(),
+        drf_exceptions.PermissionDenied(*exception.args),
         context,
     )
 

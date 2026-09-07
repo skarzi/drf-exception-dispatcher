@@ -1,5 +1,6 @@
 """Register all exception dispatcher handlers."""
-from exception_dispatcher.dispatchers import (  # noqa: F401
+
+from exception_dispatcher.dispatchers import (
     django,
     rest_framework,
 )

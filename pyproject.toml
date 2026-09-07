@@ -1,65 +1,265 @@
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry]
+[project]
 name = "drf-exception-dispatcher"
 version = "0.1.0"
-packages = [
-    { include = "exception_dispatcher" },
-]
-description = "django-rest-framework exception handler build with functools.singledispatch"
-authors = ["Łukasz Skarżyński <me@skarzi.com>"]
-license = "MIT"
+description = "Django REST framework exception handler built with functools.singledispatch"
 readme = "README.md"
-repository = "https://github.com/skarzi/drf-exception-dispatcher"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Łukasz Skarżyński", email = "me@skarzi.com" },
+]
 keywords = [
-    "django",
-    "django-exceptions",
-    "django-rest-framework",
-    "rest-framework-exceptions",
-    "exceptions",
-    "exception-handler",
-    "exception-dispatcher",
-    "exception-parser",
-    "singledispatch",
+  "django",
+  "django-exceptions",
+  "django-rest-framework",
+  "exception-dispatcher",
+  "exception-handler",
+  "exception-parser",
+  "exceptions",
+  "rest-framework-exceptions",
+  "singledispatch",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "Framework :: Django",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
-  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Internet :: WWW/HTTP",
-  "Framework :: Django",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Typing :: Typed",
+]
+dependencies = [
+  "Django>=5.2.17,<7",
+  "djangorestframework>=3.18.0,<4",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.7.0"
+[project.urls]
+Repository = "https://github.com/skarzi/drf-exception-dispatcher"
 
-djangorestframework = "^3.11.0"
+[dependency-groups]
+dev = [
+  "codespell>=2.4.3,<3",
+  "django-stubs[compatible-mypy]>=6.1.0,<7",
+  "djangorestframework-stubs[compatible-mypy]>=3.18.1,<4",
+  "flake8>=7.3.0,<8",
+  "flake8-pyproject>=1.2.4,<2",
+  "import-linter>=2.15,<3",
+  "mypy>=2.3.1,<2.4",
+  "pip-audit>=2.10.1,<3",
+  "pre-commit>=4.6.2,<5",
+  "ruff>=0.16.6,<0.17",
+  "tombi>=1.5.2,<2",
+  "twine>=7.0.0,<8",
+  "wemake-python-styleguide>=1.8.0,<2",
+  "yamllint>=1.38.0,<2",
+  { include-group = "test" },
+]
+test = [
+  "packaging>=26.3,<27",
+  "pytest>=9.1.1,<10",
+  "pytest-cov>=7.1.0,<8",
+  "pytest-deadfixtures>=3.1.0,<4",
+  "pytest-mock>=3.15.1,<4",
+  "pytest-randomly>=5.0.0,<6",
+  "pytest-timeout>=2.4.0,<3",
+]
 
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13"]
+build-backend = "uv_build"
 
-[tool.poetry.dev-dependencies]
-# type hinting
-mypy = "^0.982"
-django-stubs = "^1.7.0"
-djangorestframework-stubs = "^1.4.0"
+[tool.codespell]
+skip = ".git,.agents,.mypy_cache,.pytest_cache,.ruff_cache,.tests_reports,.venv,dist,node_modules,package-lock.json,uv.lock"
 
-# linters
-# python
-flake8-pytest-style = "^1.5.1"
-flake8-todos = "^0.1.5"
-flake8-typing-imports = "^1.12.0"
-import-linter = "^1.3.0"
-wemake-python-styleguide = "^0.16.1"
-yesqa = "^1.4.0"
-# other
-safety = "^2.3.1"
+[tool.coverage.run]
+branch = true
+core = "ctrace"
+source = ["exception_dispatcher"]
+omit = [
+  "*/tests/*",
+  ".venv/*",
+  "*conftest.py",
+  "pytest_plugins/*",
+]
+data_file = ".tests_reports/.coverage"
 
-# tests
-pytest = "^7.1.3"
-pytest-cov = "^3.0.0"
-pytest-deadfixtures = "^2.2.1"
-pytest-mock = "^3.10.0"
-pytest-randomly = "^3.12.0"
-pytest-timeout = "^2.1.0"
+[tool.coverage.report]
+skip_covered = true
+show_missing = true
+sort = "Cover"
+fail_under = 100
+exclude_lines = [
+  "pragma: no cover",
+  "if settings\\.DEBUG",
+  "if typing\\.TYPE_CHECKING",
+  "if TYPE_CHECKING",
+  "raise NotImplementedError",
+  "except ImportError",
+]
+
+[tool.coverage.xml]
+output = ".tests_reports/coverage.xml"
+
+[tool.coverage.json]
+output = ".tests_reports/coverage.json"
+
+[tool.coverage.html]
+directory = ".tests_reports/htmlcov"
+show_contexts = true
+
+[tool.django-stubs]
+django_settings_module = "tests.settings"
+
+[tool.flake8]
+select = ["WPS"]
+format = "wemake"
+show-source = true
+doctests = true
+max-complexity = 6
+max-line-length = 80
+exclude = [
+  ".agents",
+  ".git",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".tests_reports",
+  ".venv",
+  "dist",
+  "node_modules",
+]
+per-file-ignores = [
+  "exception_dispatcher/dispatchers/__init__.py:WPS410,WPS412",
+  "exception_dispatcher/dispatchers/main.py:WPS324",
+  "tests/**/*.py:WPS432,WPS442",
+  "tests/settings.py:WPS407",
+]
+
+[tool.importlinter]
+root_package = "exception_dispatcher"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layered architecture"
+type = "layers"
+containers = ["exception_dispatcher"]
+layers = [
+  "handlers",
+  "dispatchers",
+  "parsers",
+  "types",
+]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["exception_dispatcher", "tests", "tools"]
+plugins = [
+  "mypy_django_plugin.main",
+  "mypy_drf_plugin.main",
+]
+allow_redefinition = false
+check_untyped_defs = true
+disallow_any_explicit = true
+disallow_any_generics = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+ignore_errors = false
+implicit_reexport = false
+no_implicit_optional = true
+pretty = true
+strict_equality = true
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "exception_dispatcher.types"
+disallow_any_explicit = false
+
+[tool.pytest.ini_options]
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+  "--doctest-modules",
+  "--cov=exception_dispatcher",
+  "--cov-config=pyproject.toml",
+  "--cov-context=test",
+  "--cov-report=term",
+  "--cov-report=xml",
+  "--junitxml=.tests_reports/junit.xml",
+]
+junit_family = "xunit2"
+minversion = "9.1"
+norecursedirs = [
+  "*.egg",
+  ".agents",
+  ".eggs",
+  ".git",
+  ".tests_reports",
+  ".venv",
+  "__pycache__",
+  "build",
+  "dist",
+  "docs",
+  "node_modules",
+]
+testpaths = ["exception_dispatcher", "tests"]
+timeout = 10
+
+[tool.ruff]
+target-version = "py312"
+line-length = 80
+extend-exclude = [
+  ".agents",
+  ".tests_reports",
+  "dist",
+  "node_modules",
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+quote-style = "single"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "COM812",  # Conflicts with the formatter.
+  "CPY001",  # This project does not require per-file copyright headers.
+  "D203",  # Prefer no blank line before class docstrings.
+  "D213",  # Prefer summaries on the first docstring line.
+  "ISC001",  # Conflicts with the formatter.
+  "Q000",  # Conflicts with the single-quote formatter setting.
+  "Q003",  # Conflicts with the single-quote formatter setting.
+]
+external = ["WPS"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["exception_dispatcher", "tools"]
+lines-between-types = 1
+
+[tool.ruff.lint.per-file-ignores]
+"exception_dispatcher/dispatchers/__init__.py" = ["F401"]
+"exception_dispatcher/dispatchers/main.py" = ["ARG001", "LOG004"]
+"exception_dispatcher/parsers.py" = ["ARG001"]
+"tests/**/*.py" = ["S101"]
+
+[tool.uv.build-backend]
+module-name = "exception_dispatcher"
+module-root = ""
+source-include = ["tests/**"]
+source-exclude = [
+  ".agents/**",
+  ".tests_reports/**",
+  ".venv/**",
+  "node_modules/**",
+  "tools/**",
+]

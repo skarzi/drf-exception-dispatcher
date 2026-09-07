@@ -1,13 +1,17 @@
 """django-rest-framework's exceptions dispatchers.
 
-This module implement part of `django-rest-framework` default exception
-handler, related to its `APIException`.
+This module implements the part of Django REST framework's default exception
+handler related to ``APIException``.
 Reference:
 
-https://github.com/encode/django-rest-framework/blob/19655edbf782aa1fbdd7f8cd56ff9e0b7786ad3c/rest_framework/views.py#L86
+https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-handling
 
 """
+
 import functools
+
+from collections.abc import Callable
+from typing import cast
 
 from django.conf import settings
 from django.utils.module_loading import import_string
@@ -16,11 +20,16 @@ from rest_framework.response import Response
 from rest_framework.views import set_rollback
 
 from exception_dispatcher.dispatchers.main import exception_dispatcher
-from exception_dispatcher.types import ContextType
+from exception_dispatcher.types import APIExceptionDetail, ContextType
+
+APIExceptionParser = Callable[
+    [APIException, ContextType],
+    APIExceptionDetail,
+]
 
 
 @functools.lru_cache(maxsize=1)
-def get_api_exception_parser():
+def get_api_exception_parser() -> APIExceptionParser:
     """Get callable object used to parse ``APIException`` based on settings."""
     parser_path = getattr(
         settings,
@@ -28,15 +37,15 @@ def get_api_exception_parser():
         'exception_dispatcher.parsers.parse_rest_framework_api_exception',
     )
     try:
-        return import_string(parser_path)
+        return cast('APIExceptionParser', import_string(parser_path))
     except ImportError as exc:
-        message = 'Could not import "{0}" for setting "{1}". {2}: {3}.'.format(
+        message = 'Could not import "{}" for setting "{}". {}: {}.'.format(
             parser_path,
             'EXCEPTION_DISPATCHER_API_EXCEPTION_PARSER',
             exc.__class__.__name__,
             exc,
         )
-        raise ImportError(message)
+        raise ImportError(message) from exc
 
 
 def handle_rest_framework_api_exception(
@@ -44,7 +53,7 @@ def handle_rest_framework_api_exception(
     context: ContextType,
 ) -> Response:
     """Handle all ``APIException`` subclasses' instances."""
-    headers = {}
+    headers: dict[str, str] = {}
     auth_header = getattr(exception, 'auth_header', None)
     if auth_header:
         headers['WWW-Authenticate'] = auth_header

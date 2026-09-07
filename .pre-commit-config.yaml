@@ -1,0 +1,85 @@
+---
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        args:
+          - --markdown-linebreak-ext=md
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+      - id: check-json
+  - repo: local
+    hooks:
+      - id: lint-commit-message
+        name: Lint commit message
+        entry: make lint-commit-message --
+        language: system
+        pass_filenames: true
+        stages:
+          - commit-msg
+      - id: lint-fix-python
+        name: Format and lint Python
+        entry: make lint-fix-python
+        language: system
+        pass_filenames: false
+        types:
+          - python
+      - id: lint-fix-markdown
+        name: Format and lint Markdown
+        entry: make lint-fix-markdown --
+        language: system
+        pass_filenames: true
+        types:
+          - markdown
+      - id: lint-fix-toml
+        name: Format and lint TOML
+        entry: make lint-fix-toml --
+        language: system
+        pass_filenames: true
+        types:
+          - toml
+        exclude: ^(poetry\.lock|uv\.lock)$
+      - id: lint-fix-yaml
+        name: Format and lint YAML
+        entry: make lint-fix-yaml --
+        language: system
+        pass_filenames: true
+        types:
+          - yaml
+      - id: lint-github-actions-workflow
+        name: Lint GitHub Actions workflows
+        entry: make lint-github-actions-workflow --
+        language: system
+        pass_filenames: true
+        files: ^\.github/workflows/.*\.ya?ml$
+        types:
+          - yaml
+      - id: lint-makefile
+        name: Lint Makefile
+        entry: make lint-makefile --
+        language: system
+        pass_filenames: true
+        types:
+          - makefile
+      - id: lint-spelling
+        name: Check spelling
+        entry: make lint-spelling
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-pre-commit
+        name: Validate pre-commit configuration
+        entry: make lint-pre-commit
+        language: system
+        pass_filenames: false
+        files: ^\.pre-commit-config\.yaml$
+      - id: lint-lock
+        name: Validate uv lock consistency
+        entry: make lint-lock
+        language: system
+        pass_filenames: false
+        files: ^(pyproject\.toml|uv\.lock)$

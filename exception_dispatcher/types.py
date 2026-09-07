@@ -1,11 +1,7 @@
 """Frequently used types' aliases."""
-from typing import (
-    Any,
-    Dict,
-    List,
-    MutableMapping,
-    Union,
-)
+
+from collections.abc import MutableMapping
+from typing import Any
 
 ContextType = MutableMapping[str, Any]
-APIExceptionDetail = Union[str, List[Any], Dict[str, Any]]
+APIExceptionDetail = str | list[Any] | dict[str, Any]

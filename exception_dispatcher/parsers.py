@@ -1,12 +1,13 @@
-"""Default `django-rest-framework` ``APIException`` parser.
+"""Default Django REST framework ``APIException`` parser.
 
-This module implement part of `django-rest-framework` default exception
-handler, related to `APIException` parsing into response's data.
+This module implements the part of Django REST framework's default exception
+handler related to parsing ``APIException`` instances into response data.
 Reference:
 
-https://github.com/encode/django-rest-framework/blob/19655edbf782aa1fbdd7f8cd56ff9e0b7786ad3c/rest_framework/views.py#L93
+https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-handling
 
 """
+
 from rest_framework.exceptions import APIException
 
 from exception_dispatcher.types import (

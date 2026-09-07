@@ -6,111 +6,200 @@ name: CI
       - main
   pull_request:
   workflow_dispatch:
-
+  workflow_call:
+    inputs:
+      ref:
+        description: Git revision to validate.
+        required: false
+        type: string
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || inputs.ref || github.ref }}
+  cancel-in-progress: true
 jobs:
-  test_package:
+  quality:
+    name: Quality
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.continue-on-error }}
-    strategy:
-      matrix:
-        python-version:
-          - '3.7'
-          - '3.8'
-          - '3.9'
-          - '3.10'
-        django-version:
-          - 'Django~=2.2.0'
-          - 'Django~=3.2.0'
-          - 'Django~=4.0.0'
-        django-rest-framework-version:
-          - 'djangorestframework~=3.11.0'
-          - 'djangorestframework~=3.12.0'
-          - 'djangorestframework~=3.13.0'
-        continue-on-error:
-          - false
-
-        include:
-          - python-version: '3.10'
-            django-rest-framework-version: >-
-              https://github.com/encode/django-rest-framework/archive/master.zip
-            django-version: 'https://github.com/django/django/archive/main.zip'
-            continue-on-error: true
-        exclude:
-          - python-version: '3.7'
-            django-rest-framework-version: 'djangorestframework~=3.11.0'
-            django-version: 'Django~=4.0.0'
-            continue-on-error: false
-          - python-version: '3.7'
-            django-rest-framework-version: 'djangorestframework~=3.12.0'
-            django-version: 'Django~=4.0.0'
-            continue-on-error: false
-          - python-version: '3.7'
-            django-rest-framework-version: 'djangorestframework~=3.13.0'
-            django-version: 'Django~=4.0.0'
-            continue-on-error: false
-
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v3
-      - name: "set up python ${{ matrix.python-version }}"
-        uses: actions/setup-python@v4
-        with:
-          python-version: "${{ matrix.python-version }}"
-      - name: install poetry
-        run: |
-          pip install --upgrade pip
-
-          INSTALL_POETRY_URL="https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py"
-          curl \
-            --silent \
-            --show-error \
-            --location "${INSTALL_POETRY_URL}" \
-          | python
-
-          # add `poetry` to `${PATH}`
-          echo "${HOME}/.poetry/bin" >> ${GITHUB_PATH}
-      - uses: actions/cache@v3.0.8
-        with:
-          path: .venv
-          key: "venv-${{ matrix.python-version }}\
-            -${{ matrix.django-version }}\
-            -${{ matrix.django-rest-framework-version }}\
-            -${{ hashFiles('poetry.lock') }}"
-
-      - name: install dependencies
-        run: |
-          poetry config virtualenvs.in-project true
-          poetry install
-          poetry run pip install \
-            --upgrade \
-          "${{ matrix.django-version }}" \
-          "${{ matrix.django-rest-framework-version }}"
-      - name: test
-        run: make test
-      - name: upload coverage to codecov
-        uses: codecov/codecov-action@v3.1.1
-        with:
-          file: ./.tests_reports/coverage.xml
-
-  test_commons:
-    runs-on: ubuntu-latest
-    steps:
-      - name: setup latest node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 'lts/*'
-      - uses: actions/cache@v3.0.8
-        with:
-          path: ~/.npm
-          key: "${{ runner.os }}-npm"
-      - name: install test dependencies.
-        run: |
-          npm install --global markdownlint-cli
-      - uses: actions/checkout@v3
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - name: lint Markdown files
-        run: markdownlint .
-      - name: lint commit messages
-        uses: wagoid/commitlint-github-action@v5.0.2
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Install mise tools
+        uses: jdx/mise-action@v4.3.0
         with:
-          failOnWarnings: true
+          version: 2026.9.1
+          cache: true
+      - name: Install locked development dependencies
+        run: |
+          uv sync --locked --all-groups
+          npm ci
+      - name: Run read-only checks
+        run: make lint
+      - name: Validate pull request commit messages
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: >-
+          npx --no-install commitlint --from "${BASE_SHA}" --to "${HEAD_SHA}" --verbose
+      - name: Run all pre-commit hooks idempotently
+        run: >-
+          uv run --no-sync pre-commit run --all-files --show-diff-on-failure
+  locked-tests:
+    name: Locked tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Install mise tools
+        uses: jdx/mise-action@v4.3.0
+        with:
+          version: 2026.9.1
+          cache: true
+      - name: Install locked test environment
+        run: uv sync --locked --no-default-groups --group test
+      - name: Run tests with complete branch coverage
+        run: make test
+      - name: Upload coverage to Codecov
+        if: >-
+          github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: codecov/codecov-action@v7.0.0
+        with:
+          files: .tests_reports/coverage.xml
+          fail_ci_if_error: true
+          use_oidc: true
+      - name: Upload test reports
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: test-reports
+          path: |
+            .tests_reports/coverage.xml
+            .tests_reports/junit.xml
+          if-no-files-found: error
+  compatibility-tests:
+    name: Python ${{ matrix.python }} / ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Django 5.2 latest
+            python: '3.12'
+            django: Django>=5.2.17,<5.3
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 6.0 latest
+            python: '3.12'
+            django: Django>=6.0.8,<6.1
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 6.1 latest
+            python: '3.12'
+            django: Django>=6.1.1,<6.2
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 5.2 latest
+            python: '3.13'
+            django: Django>=5.2.17,<5.3
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 6.0 latest
+            python: '3.13'
+            django: Django>=6.0.8,<6.1
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 6.1 latest
+            python: '3.13'
+            django: Django>=6.1.1,<6.2
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 5.2 latest
+            python: '3.14'
+            django: Django>=5.2.17,<5.3
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 6.0 latest
+            python: '3.14'
+            django: Django>=6.0.8,<6.1
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: Django 6.1 latest
+            python: '3.14'
+            django: Django>=6.1.1,<6.2
+            drf: djangorestframework>=3.18.0,<3.19
+          - name: exact lower bounds
+            python: '3.12'
+            django: Django==5.2.17
+            drf: djangorestframework==3.18.0
+    env:
+      DJANGO_REQUIREMENT: ${{ matrix.django }}
+      DRF_REQUIREMENT: ${{ matrix.drf }}
+      MISE_PYTHON_VERSION: ${{ matrix.python }}
+      UV_PYTHON: ${{ matrix.python }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Install mise tools
+        uses: jdx/mise-action@v4.3.0
+        with:
+          version: 2026.9.1
+          cache: true
+      - name: Install matrix Python
+        run: mise install "python@${MISE_PYTHON_VERSION}"
+      - name: Install locked tests and matrix frameworks
+        run: |
+          uv sync --locked --no-default-groups --group test
+          uv pip install --python .venv/bin/python --upgrade \
+            "${DJANGO_REQUIREMENT}" "${DRF_REQUIREMENT}"
+      - name: Show and validate active dependency versions
+        run: make check-environment
+      - name: Run compatibility tests without resynchronizing
+        run: make test
+  package:
+    name: Package artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Install mise tools
+        uses: jdx/mise-action@v4.3.0
+        with:
+          version: 2026.9.1
+          cache: true
+      - name: Install locked development environment
+        run: uv sync --locked --all-groups
+      - name: Build and validate wheel and source distribution
+        run: make check-package
+      - name: Upload validated distributions
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: distributions
+          path: dist/*
+          if-no-files-found: error
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+      - name: Install mise tools
+        uses: jdx/mise-action@v4.3.0
+        with:
+          version: 2026.9.1
+          cache: true
+      - name: Install locked development environment
+        run: uv sync --locked --all-groups
+      - name: Audit the locked dependency graph
+        run: make audit

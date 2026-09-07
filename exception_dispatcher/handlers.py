@@ -8,8 +8,6 @@ https://www.django-rest-framework.org/api-guide/exceptions/#custom-exception-han
 
 """
 
-from typing import Optional
-
 from rest_framework.response import Response
 
 from exception_dispatcher.dispatchers import exception_dispatcher
@@ -19,7 +17,7 @@ from exception_dispatcher.types import ContextType
 def exception_handler(
     exception: Exception,
     context: ContextType,
-) -> Optional[Response]:
+) -> Response | None:
     """`django-rest-framework` exception handler.
 
     Following exception handler is built with ``functools.singledispatch``
@@ -28,9 +26,4 @@ def exception_handler(
     `exception_dispatcher.dispatchers.django`.
 
     """
-    # initialization actions
-
     return exception_dispatcher(exception, context)
-
-    # finalization actions can be added here, after replacing `return` with
-    # assignment, e.g. `response = exception_dipatcher(exception, context)`

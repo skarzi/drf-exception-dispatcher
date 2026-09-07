@@ -1,5 +1,8 @@
+"""Tests for Django REST framework exception dispatching."""
+
 import pytest
 
+from pytest_mock import MockerFixture
 from rest_framework import exceptions as rest_exceptions
 
 from exception_dispatcher.dispatchers import rest_framework as handlers
@@ -9,21 +12,27 @@ class _TestAuthenticationException(rest_exceptions.AuthenticationFailed):
     auth_header = 'Bearer realm="Access testing API"'
 
 
-@pytest.mark.parametrize(('exception', 'expected_headers'), [
-    (rest_exceptions.ParseError(), {}),
-    (rest_exceptions.Throttled(wait=120), {'Retry-After': '120'}),
-    (
-        _TestAuthenticationException(),
-        {'WWW-Authenticate': _TestAuthenticationException.auth_header},
-    ),
-])
-def test_response_headers(exception, expected_headers):
+@pytest.mark.parametrize(
+    ('exception', 'expected_headers'),
+    [
+        (rest_exceptions.ParseError(), {}),
+        (rest_exceptions.Throttled(wait=120), {'Retry-After': '120'}),
+        (
+            _TestAuthenticationException(),
+            {'WWW-Authenticate': _TestAuthenticationException.auth_header},
+        ),
+    ],
+)
+def test_response_headers(
+    exception: rest_exceptions.APIException,
+    expected_headers: dict[str, str],
+) -> None:
     """Ensure response with expected headers is returned."""
     response = handlers.handle_rest_framework_api_exception(exception, {})
     assert set(expected_headers.items()) <= set(response.items())
 
 
-def test_response_data():
+def test_response_data() -> None:
     """Ensure response with expected data is returned."""
     detail = 'Dummy detail'
     code = 'dummy_code'
@@ -35,7 +44,7 @@ def test_response_data():
     assert detail in str(response.data)
 
 
-def test_response_status_code():
+def test_response_status_code() -> None:
     """Ensure response with expected status code is returned."""
     exception = rest_exceptions.PermissionDenied()
 
@@ -44,7 +53,7 @@ def test_response_status_code():
     assert response.status_code == exception.status_code
 
 
-def test_set_rollback_default(mocker):
+def test_set_rollback_default(mocker: MockerFixture) -> None:
     """Ensure ``set_rollback`` is called by default."""
     set_rollback_mock = mocker.patch(
         'exception_dispatcher.dispatchers.rest_framework.set_rollback',
@@ -58,7 +67,7 @@ def test_set_rollback_default(mocker):
     set_rollback_mock.assert_called_once()
 
 
-def test_set_rollback_disabled(mocker):
+def test_set_rollback_disabled(mocker: MockerFixture) -> None:
     """Ensure ``set_rollback`` is not called when disabled via settings."""
     set_rollback_mock = mocker.patch(
         'exception_dispatcher.dispatchers.rest_framework.set_rollback',

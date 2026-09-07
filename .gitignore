@@ -130,3 +130,12 @@ dmypy.json
 
 # unit tests
 .tests_reports/
+
+# Node
+node_modules/
+
+# Ruff
+.ruff_cache/
+
+# Local multi-agent review state
+.agents/reviews/

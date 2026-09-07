@@ -1,50 +1,106 @@
 ---
-name: release
+name: Release
 'on':
   push:
     tags:
       - '*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing unprefixed version tag to validate without publishing.
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
 jobs:
-  release:
+  validate-tag:
+    name: Validate tag and version
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      prerelease: ${{ steps.release.outputs.prerelease }}
+      tag: ${{ steps.release.outputs.tag }}
+    env:
+      TARGET_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      - uses: actions/checkout@v3
-      - name: setup python 3.10
-        uses: actions/setup-python@v4
+      - name: Check out the exact tagged revision
+        uses: actions/checkout@v7.0.1
         with:
-          python-version: '3.10'
-      - name: populate dynamic environment variables
-        run: |
-          IS_PRERELEASE=true
-
-          if [[ "${GITHUB_REF#refs/tags/}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]];
-          then
-            IS_PRERELEASE=false
-          fi
-
-          echo "IS_PRERELEASE=${IS_PRERELEASE}" >> ${GITHUB_PATH}
-      - name: install poetry
-        run: |
-          pip install --upgrade pip
-
-          INSTALL_POETRY_URL="https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py"
-          curl \
-            --silent \
-            --show-error \
-            --location "${INSTALL_POETRY_URL}" \
-          | python
-          # add `poetry` to `${PATH}`:
-          echo "${HOME}/.poetry/bin" >> ${GITHUB_PATH}
-      - name: build project for distribution
-        run: poetry build
-      - name: create github release
-        uses: ncipollo/release-action@v1.11.1
+          ref: ${{ env.TARGET_TAG }}
+      - name: Install mise tools
+        uses: jdx/mise-action@v4.3.0
         with:
-          artifacts: "dist/*"
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          draft: false
-          prerelease: env.IS_PRERELEASE == 'true'
-      - name: publish to PyPI
+          version: 2026.9.1
+          cache: true
+      - name: Install locked validation dependencies
+        run: uv sync --locked --no-default-groups --group test
+      - name: Validate release tag
+        id: release
+        run: make validate-release
+  validation:
+    name: Validate exact tagged revision
+    needs: validate-tag
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      ref: ${{ needs.validate-tag.outputs.tag }}
+    secrets: inherit
+  publish-pypi:
+    name: Publish to PyPI
+    if: github.event_name == 'push'
+    needs:
+      - validate-tag
+      - validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out release configuration
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.validate-tag.outputs.tag }}
+      - name: Install mise tools
+        uses: jdx/mise-action@v4.3.0
+        with:
+          version: 2026.9.1
+          cache: true
+      - name: Download validated distributions
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: distributions
+          path: dist
+      - name: Publish the validated distributions with the existing token
         env:
-          POETRY_PYPI_TOKEN_PYPI: "${{ secrets.PYPI_TOKEN }}"
-        run: poetry publish
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish --trusted-publishing never dist/*
+  github-release:
+    name: Create GitHub release
+    if: github.event_name == 'push'
+    needs:
+      - validate-tag
+      - validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download validated distributions
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: distributions
+          path: dist
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1.21.0
+        with:
+          artifactErrorsFailBuild: true
+          artifacts: dist/*
+          draft: false
+          generateReleaseNotes: true
+          prerelease: ${{ needs.validate-tag.outputs.prerelease }}
+          tag: ${{ needs.validate-tag.outputs.tag }}

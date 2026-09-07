@@ -1,0 +1,10 @@
+[tools]
+python = "3.14.7"
+node = "24.20.0"
+uv = "0.12.10"
+actionlint = "1.7.12"
+checkmake = "0.3.2"
+yamlfmt = "0.21.0"
+
+[env]
+UV_PYTHON_DOWNLOADS = "never"
