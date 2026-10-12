@@ -71,7 +71,7 @@ jobs:
           version: 2026.9.1
           cache: true
       - name: Download validated distributions
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: distributions
           path: dist
@@ -91,7 +91,7 @@ jobs:
       contents: write
     steps:
       - name: Download validated distributions
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: distributions
           path: dist
