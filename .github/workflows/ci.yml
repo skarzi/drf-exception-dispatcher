@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.ref || github.sha }}
       - name: Install mise tools
-        uses: jdx/mise-action@v5.1.1
+        uses: jdx/mise-action@v5.1.2
         with:
           version: 2026.9.1
           cache: true
@@ -63,7 +63,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
       - name: Install mise tools
-        uses: jdx/mise-action@v5.1.1
+        uses: jdx/mise-action@v5.1.2
         with:
           version: 2026.9.1
           cache: true
@@ -80,7 +80,7 @@ jobs:
           fail_ci_if_error: true
           use_oidc: true
       - name: Upload test reports
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: test-reports
           path: |
@@ -146,7 +146,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
       - name: Install mise tools
-        uses: jdx/mise-action@v5.1.1
+        uses: jdx/mise-action@v5.1.2
         with:
           version: 2026.9.1
           cache: true
@@ -171,7 +171,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
       - name: Install mise tools
-        uses: jdx/mise-action@v5.1.1
+        uses: jdx/mise-action@v5.1.2
         with:
           version: 2026.9.1
           cache: true
@@ -180,7 +180,7 @@ jobs:
       - name: Build and validate wheel and source distribution
         run: make check-package
       - name: Upload validated distributions
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: distributions
           path: dist/*
@@ -195,7 +195,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
       - name: Install mise tools
-        uses: jdx/mise-action@v5.1.1
+        uses: jdx/mise-action@v5.1.2
         with:
           version: 2026.9.1
           cache: true
